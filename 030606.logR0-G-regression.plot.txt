@@ -1,0 +1,58 @@
+
+rm(list=ls());
+
+nat <- read.table("nat.rls.tab", header=T);
+lab <- read.table("lab.rls.tab", header=T);
+
+isolates = as.character( nat$strain );
+strains  = as.character( lab$strain );
+
+ylim = c( -8, -4 );
+xlim = c( 0.06, 0.21 );
+
+#for text labels
+y = log( nat$a * 1.2 );	x = nat$b;
+x[2] = x[2] *1.05
+
+#plot( nat$a ~ nat$b , col="black", xlim=xlim, ylim=ylim, xlab="G",ylab="R0", pch= 19, log='y' );
+plot( log(nat$a) ~ nat$b , col="black", xlab="G",ylab="ln(R0)", pch= 19, xlim=xlim, ylim=ylim );
+
+text( x, y, isolates, cex=0.8); 
+
+points( log(lab$a) ~ lab$b ,  col="black", pch=1);
+yy = log( lab$a * 1.2); xx=lab$b;
+text( xx, yy, strains, cex=0.8 ); 
+
+
+############add regression line
+m = lm( log(nat$a) ~ nat$b );
+
+abline(m, col="red");
+
+
+
+
+
+##############################not used for clarity
+
+# ARLS contour lines in log space
+ predict.A <- function ( G, t ) {  G * log(0.5) / ( 1 - exp(G * t))  }
+ 
+ step = 0.001; 
+ G0 <- seq( 0.0525, 0.5, by= step );   # i 
+ t <- c( 10, 15, 20, 25, 30, 35, 40, 45, 50, 60 );
+ bb = 0.051
+ aa <- ( log(0.5) * bb ) / (1 - exp(bb * t));
+ ii  <- matrix(nrow= length(G0), ncol= length(t) );
+ text ( bb, aa, t, cex=0.8); 
+
+ for (j in 1:length(t) ) {
+   for ( i in 1:length(G0) ) {
+     ii[i,j] =  predict.A( G0[i], t[j] );
+   }
+ }
+
+for( i in 1:length(t)) { points ( G0, log(ii[,i]), col="black", lty=2, type="l"); } #log transformed
+
+#arrows( (tb$a - tb$a.sd), tb$b, (tb$a+tb$a.sd), tb$b, lwd=0.1, 	angle=90,code=3,lty=8, #length=0.05,col="red");
+#arrows( tb$a, (tb$b-tb$b.sd), tb$a, (tb$b+tb$b.sd), lwd=0.1, 	angle=90,code=3,lty=8, length=0.05,col="red");
